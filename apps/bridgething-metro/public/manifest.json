@@ -1,7 +1,7 @@
 {
   "id": "01a14748-8c1a-771b-844d-4f10909667c9",
   "name": "Metro",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A Windows Phone style Start screen: live tiles, knob navigation, panorama sections.",
   "icon": "icon.svg",
   "settings": "settings.html",
@@ -12,7 +12,10 @@
       "data": {
         "key": "theme",
         "label": "Background",
-        "choices": ["dark", "light"],
+        "choices": [
+          "dark",
+          "light"
+        ],
         "default": "dark"
       }
     },
@@ -30,7 +33,10 @@
       "data": {
         "key": "music_knob",
         "label": "Knob on the music screen",
-        "choices": ["volume", "scroll"],
+        "choices": [
+          "volume",
+          "scroll"
+        ],
         "default": "volume"
       }
     },
@@ -39,7 +45,10 @@
       "data": {
         "key": "weather_units",
         "label": "Weather units",
-        "choices": ["metric", "imperial"],
+        "choices": [
+          "metric",
+          "imperial"
+        ],
         "default": "metric"
       }
     },
@@ -54,7 +63,10 @@
   "overlays": {
     "volume": false
   },
-  "permissions": ["net.fetch", "geo"],
+  "permissions": [
+    "net.fetch",
+    "geo"
+  ],
   "art": {
     "heroPx": 248,
     "thumbPx": 96
