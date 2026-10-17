@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
 
-// one live tile animates at a time, at a random 3 to 8 s interval
-export function useLiveTiles(keys: string[]): string | null {
+// one live tile animates at a time, at a random 3 to 8 s interval. paused (edit mode) settles every tile back to
+// its front face and stops the schedule until it resumes.
+export function useLiveTiles(keys: string[], paused = false): string | null {
   const [flipped, setFlipped] = useState<string | null>(null);
   useEffect(() => {
+    if (paused) {
+      setFlipped(null);
+      return;
+    }
     let t = 0;
     const tick = () => {
       t = window.setTimeout(
@@ -17,6 +22,6 @@ export function useLiveTiles(keys: string[]): string | null {
     };
     tick();
     return () => window.clearTimeout(t);
-  }, [keys]);
+  }, [keys, paused]);
   return flipped;
 }

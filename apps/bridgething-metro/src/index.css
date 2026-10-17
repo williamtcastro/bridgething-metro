@@ -858,13 +858,18 @@ img {
   }
 }
 
-/* edit mode, as on WP: every other tile sinks back and dims, the picked one comes forward with its controls */
+/* edit mode, as on WP: every other tile sinks back and dims, the picked one comes forward with its controls.
+   nothing animates here: every move or resize re-packs the grid, and transitions mid-reflow tear on the device */
+.strip.editing,
+.strip.editing *,
+.strip.editing *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
 .strip.editing .tile {
   transform: scale(0.9);
   opacity: 0.5;
-  transition:
-    transform 250ms var(--decel),
-    opacity 250ms var(--decel);
 }
 
 .strip.editing .tile.selected {

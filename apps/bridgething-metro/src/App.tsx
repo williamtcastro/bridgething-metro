@@ -39,7 +39,9 @@ export default function App() {
   const [offset, setOffset] = useState(0);
   const [section, setSection] = useState<Section>('start');
   const [leaving, setLeaving] = useState(false);
-  const flipped = useLiveTiles(LIVE_TILES);
+  // the tile being edited; edit mode also pauses the live tiles, whose motion fights the reflow
+  const [editKey, setEditKey] = useState<string | null>(null);
+  const flipped = useLiveTiles(LIVE_TILES, editKey !== null);
   const artColor = useArtColor(launcher.nowPlaying?.artUrl ?? null);
   const now = useNow();
 
@@ -48,7 +50,6 @@ export default function App() {
 
   // edit mode, entered by a long press or from settings: the knob walks the selected tile through the order and a
   // press cycles its size; back, M or tapping it again finishes. both write the layout doc the companion shares.
-  const [editKey, setEditKey] = useState<string | null>(null);
   const moveTile = (d: number) => {
     const keys = specs.map(t => t.key);
     const i = editKey ? keys.indexOf(editKey) : -1;
