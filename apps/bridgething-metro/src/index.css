@@ -153,9 +153,18 @@ img {
   transform: scale(0.975);
 }
 
-.tile.focused,
 .app-row.focused .app-row-icon {
   box-shadow: inset 0 0 0 3px var(--fg);
+}
+
+/* the tile ring sits on its own layer: an inset shadow on the tile paints under its art and the peek */
+.tile.focused::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 3px var(--fg);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .tile-label {
@@ -775,7 +784,10 @@ img {
   color: #fff;
 }
 
-:root[data-input="touch"] .tile.focused,
+:root[data-input="touch"] .tile.focused::after {
+  content: none;
+}
+
 :root[data-input="touch"] .app-row.focused .app-row-icon {
   box-shadow: none;
 }
