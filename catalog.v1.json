@@ -1,7 +1,7 @@
 {
   "$schema": "https://apps.bridgething.com/schemas/catalog/v1.json",
   "schema": "catalog.v1",
-  "updated_at": "2026-10-17T02:29:50.681Z",
+  "updated_at": "2026-10-17T02:30:23.239Z",
   "repo": {
     "name": "Metro",
     "description": "Metro, a Windows Phone style home screen for bridgething.",
@@ -37,7 +37,7 @@
           ],
           "role": "launcher",
           "min_libbridgething_version": "0.12.1",
-          "changelog": "first release: Windows Phone style Start screen with live tiles, edit mode, weather, notifications and themes"
+          "changelog": "First release: a Windows Phone style Start screen for the Car Thing.\n\n- Live tiles on the WP grid: the clock flips to the date, notifications cycle or flip to their count, now playing\n  slides its cover up and takes the album's colour, and weather shows the temperature with high and low.\n- A sideways panorama of start, notifications (with the phone's own actions), apps, music and settings.\n- Knob first: turn to move, press to open; on music the knob is volume, or keeps navigating if set.\n  Presets jump to pages, menu flips start and music, and holding a preset shows what every button does.\n- WP edit mode: long-press a tile to move it and pick its size on the bottom bar. Show, hide, size and order tiles\n  from the companion app too.\n- The 20 WP8 accents on dark or light, picked on the device or in the companion.\n- Device settings for brightness, paired phones, restart, and editing or resetting the start grid."
         },
         {
           "version": "0.1.0",
@@ -58,7 +58,7 @@
           ],
           "role": "launcher",
           "min_libbridgething_version": "0.12.1",
-          "changelog": "First release."
+          "changelog": "Preview build."
         }
       ]
     }
