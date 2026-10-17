@@ -10,18 +10,22 @@ and lowercase headers. The full spec is in [docs/DESIGN.md](docs/DESIGN.md).
 
 ## Features
 
-- **Start**: clock, now playing, notifications, settings and app tiles packed into the WP grid (small, medium,
-  wide). One live tile moves at a time: the clock flips to the date, notifications cycle, and the now playing
-  tile slides its album art up over itself.
+- **Start**: clock, now playing, notifications, weather, settings and app tiles packed into the WP grid (small,
+  medium, wide). One live tile moves at a time: the clock flips to the date, notifications cycle (or, small, flip
+  between a bell and the count), and the now playing tile slides its album art up over itself. Now playing takes
+  the album's own colour.
 - **Notifications**: an action center page with every notification, its time and the phone's own actions
-  (reply, clear, archive...), plus clear all.
+  (reply, clear, archive...), plus clear all. Cleared ones stay cleared across reloads.
 - **Apps**: alphabetical list with outlined jump letters. Built-in apps get white Metro glyphs.
 - **Music**: large artwork, title, artist, album and the playing app, with previous, play/pause and next.
-- **Settings**: theme (dark or light, 20 WP accents), brightness, paired phones and restart, on the device.
+- **Settings**: theme (dark or light, 20 WP accents), brightness, paired phones, restart, and edit or reset the
+  start grid, all on the device.
 - **Themes**: the 20 WP8 accents on a dark or light background, set on the device or in the companion app.
 - **Your own grid**: move and resize tiles in WP edit mode on the device; show, hide, size and order them from the
   companion app.
-- **Weather tile**: current conditions and high/low on the weather app's tile, refreshed every 15 minutes.
+- **Weather tile**: current conditions and high/low on the weather app's tile from
+  [Open-Meteo](https://open-meteo.com), refreshed every 15 minutes. It uses the phone's location, or a city guessed
+  from the phone's public IP ([ipapi.co](https://ipapi.co)) when the phone shares none, or a fixed `lat,lon`.
 - **Volume flyout** and a **button guide** in the WP chrome-band style.
 
 ## Controls
@@ -39,8 +43,9 @@ and lowercase headers. The full spec is in [docs/DESIGN.md](docs/DESIGN.md).
 | Menu x5, or hold Menu | bridgething's own return-home gesture |
 | Long press a tile | edit mode (also settings > edit start) |
 
-In edit mode the knob moves the selected tile, a press cycles its size, and back, menu or tapping it again finishes.
-The tile's buttons do the same by touch; tap another tile to edit that one instead.
+In edit mode the other tiles sink back and the selected one carries arrows to move it; a bar along the bottom has
+a button per size (the ones that tile can't take are disabled) and done. With the knob: turn to move, press to cycle
+the size, back or menu to finish. Tap another tile to edit that one instead. Nothing animates while editing.
 
 ## Settings
 
@@ -53,7 +58,7 @@ offers:
 | Accent colour | lime, green, emerald, teal, cyan, cobalt, indigo, violet, pink, magenta, crimson, red, orange, amber, yellow, brown, olive, steel, mauve, sienna | cyan |
 | Knob on the music screen | volume, scroll | volume |
 | Weather units | metric, imperial | metric |
-| Weather location | `lat,lon`, or blank for the phone's location | blank |
+| Weather location | `lat,lon`, or blank for the phone's location (an IP-based city if the phone shares none) | blank |
 | Tiles | per tile: shown or hidden, size, position; reset layout | the default grid |
 
 The tile list is shared with the device's edit mode through the `layout` doc, so changes on either side show up
@@ -62,14 +67,25 @@ the companion app. Metro turns off the system volume bar while it is on screen a
 
 ## Install
 
-From the bridgething store once the catalog is published, or straight from this repo onto a connected Car Thing:
+In the bridgething companion app, add this catalog as a source and install Metro from it:
+
+```
+https://williamtcastro.github.io/bridgething-metro/catalog.v1.json
+```
+
+Then make Metro the home screen from its page in the companion. Or build it from this repo onto a Car Thing plugged
+into your computer:
 
 ```sh
+git clone https://github.com/williamtcastro/bridgething-metro
+cd bridgething-metro
 bun install
 bun run push        # build, copy to the device, make Metro the home screen
 ```
 
 `bun run push --release` hands the home screen back to bridgething's hub.
+
+Bugs, ideas and screenshots of your layouts: <https://github.com/williamtcastro/bridgething-metro/issues>.
 
 ## Develop
 
@@ -99,7 +115,9 @@ notifications stay empty.
 
 ```
 apps/bridgething-metro/
-  public/manifest.json   id, role: launcher, config (theme, accent, music_knob), overlays (volume off)
+  public/manifest.json   id, role: launcher, icon, config (theme, accent, music_knob, weather_*),
+                         permissions (net.fetch, geo), overlays (volume off), settingsHint
+  screenshots/           store screenshots (`bun run shot`), first one is the store card
   settings/              companion-app settings page (single file, runs on the phone)
   src/
     App.tsx              panorama, focus, scrolling, launch motion
@@ -119,6 +137,9 @@ Things that only show up on the Car Thing:
 - The iPhone sends locales like `en_US`, which `Intl` rejects; time formatting falls back step by step.
 - iOS now-playing sends only changed fields, so the launcher keeps the last known artist and artwork.
 - The daemon caches manifests: after changing `public/manifest.json` on an installed app, restart the daemon.
+- Location often comes back `unavailable` when the phone shares none; weather falls back to an IP-based city.
+- The daemon replays the notifications it holds on every connect, so cleared ids are remembered and skipped.
+- The phone link comes up after the page loads, so network calls retry instead of waiting for the next refresh.
 
 ## Ship
 
