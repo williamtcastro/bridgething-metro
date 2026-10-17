@@ -207,3 +207,138 @@ button {
   color: var(--dim);
   font-size: 14px;
 }
+
+.hint {
+  margin: 0;
+  color: var(--dim);
+  font-size: 16px;
+}
+
+.tiles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tile {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.tile.off .tile-name,
+.tile.off .sizes {
+  opacity: 0.4;
+}
+
+.tile-head,
+.tile-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.tile-name {
+  min-width: 0;
+  font-size: 24px;
+  text-transform: lowercase;
+  overflow-wrap: anywhere;
+}
+
+.switch {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.switch-label {
+  color: var(--dim);
+  font-size: 16px;
+  text-transform: lowercase;
+}
+
+.switch-track {
+  display: flex;
+  align-items: center;
+  width: 56px;
+  height: 28px;
+  padding: 3px;
+  border: 3px solid var(--dim);
+}
+
+.switch-track i {
+  width: 16px;
+  height: 16px;
+  background: var(--dim);
+}
+
+.switch[aria-checked='true'] .switch-track {
+  justify-content: flex-end;
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.switch[aria-checked='true'] .switch-track i {
+  background: #fff;
+}
+
+.sizes {
+  display: flex;
+  min-width: 0;
+}
+
+.size {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 2px solid var(--line);
+  font-size: 16px;
+  text-transform: lowercase;
+}
+
+.size + .size {
+  margin-left: -2px;
+}
+
+.size[aria-checked='true'] {
+  position: relative;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.moves {
+  display: flex;
+  flex: none;
+  gap: 4px;
+}
+
+.move {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--line);
+  font-size: 24px;
+}
+
+.move:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.reset {
+  min-height: 44px;
+  margin-top: 16px;
+  padding: 0 20px;
+  border: 2px solid var(--fg);
+  font-size: 18px;
+  text-transform: lowercase;
+}

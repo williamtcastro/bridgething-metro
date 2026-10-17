@@ -2,6 +2,7 @@ import { settings } from '@bridgething/client/settings';
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ACCENTS, DEFAULT_THEME } from '../src/lib/theme';
+import { TilesSection } from './tiles';
 import './style.css';
 
 type Values = { theme: string; accent: string; music_knob: string };
@@ -112,6 +113,8 @@ function Settings() {
           </button>
         ))}
       </div>
+
+      <TilesSection />
 
       <p className="status">{status}</p>
     </main>
