@@ -66,8 +66,12 @@ export function Tile(props: {
         }
         props.onPress(e.currentTarget);
       }}>
-      {props.children}
-      {props.label && <span className="tile-label">{props.label}</span>}
+      {/* the face clips in its own layer, so the edit controls can overhang the tile without uncovering whatever
+          a face parks outside its box (the music meta at a medium size, the art peek) */}
+      <span className="tile-body">
+        {props.children}
+        {props.label && <span className="tile-label">{props.label}</span>}
+      </span>
       {props.controls}
     </button>
   );

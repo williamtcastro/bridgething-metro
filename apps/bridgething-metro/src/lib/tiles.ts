@@ -40,9 +40,10 @@ export function startTiles(apps: AppEntry[], layout: StartLayout): TileSpec[] {
   });
 }
 
-// the clock, music and notification faces need room; settings is a glyph; apps take any size
+// the clock and music faces need room; notifications shrink to an iconic bell; settings is a glyph; apps take any size
 export function allowedSizes(t: TileSpec): Size[] {
-  if (t.kind === 'clock' || t.kind === 'music' || t.kind === 'notes') return ['medium', 'wide'];
+  if (t.kind === 'notes') return ['small', 'medium', 'wide'];
+  if (t.kind === 'clock' || t.kind === 'music') return ['medium', 'wide'];
   if (t.kind === 'settings') return ['small', 'medium'];
   return ['small', 'medium', 'wide'];
 }

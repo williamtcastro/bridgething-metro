@@ -28,6 +28,7 @@ import { formatTime } from '@/lib/time';
 import { appGlyph } from '@/lib/app-glyphs';
 import { allowedSizes, gridWidth, labelOf, startTiles } from '@/lib/tiles';
 import { clamp, wait } from '@/lib/util';
+import { EMPTY_LAYOUT } from '@/types';
 
 export default function App() {
   const launcher = useLauncher();
@@ -267,8 +268,8 @@ export default function App() {
                 if (t.kind === 'app') void launch(t.app.id);
               }}>
               {t.kind === 'clock' && <ClockFace now={now} time={launcher.time} flipped={flipped === 'clock'} />}
-              {t.kind === 'music' && <MusicFace launcher={launcher} peek={flipped === 'music'} />}
-              {t.kind === 'notes' && <NotesFace notes={launcher.notes} flipped={flipped === 'notes'} />}
+              {t.kind === 'music' && <MusicFace launcher={launcher} peek={flipped === 'music'} size={t.size} />}
+              {t.kind === 'notes' && <NotesFace notes={launcher.notes} flipped={flipped === 'notes'} size={t.size} />}
               {t.kind === 'app' &&
                 (appGlyph(t.app.name) === 'weather' && launcher.weather ? (
                   <WeatherFace weather={launcher.weather} size={t.size} />
@@ -319,6 +320,7 @@ export default function App() {
           focusedIndex={focus - placed.length - stops - appCount - musicStops}
           onFocus={focusOf}
           onEditStart={() => setEditKey(placed[0]?.key ?? null)}
+          onResetStart={() => launcher.saveLayout(EMPTY_LAYOUT)}
         />
       </div>
 

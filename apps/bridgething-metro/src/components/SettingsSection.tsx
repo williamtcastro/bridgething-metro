@@ -12,6 +12,7 @@ export function SettingsSection(props: {
   onFocus(el: HTMLElement): void;
   // edit mode for knob users, who have no long press
   onEditStart(): void;
+  onResetStart(): void;
 }) {
   const { device } = props;
   const [armed, setArmed] = useState(false);
@@ -124,6 +125,9 @@ export function SettingsSection(props: {
           </button>
           <button type="button" data-focus className={`metro-button${focused()}`} onClick={press(props.onEditStart)}>
             edit start
+          </button>
+          <button type="button" data-focus className={`metro-button${focused()}`} onClick={press(props.onResetStart)}>
+            reset start
           </button>
         </span>
       </div>
