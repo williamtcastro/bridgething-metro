@@ -5,6 +5,7 @@
   "description": "A Windows Phone style Start screen: live tiles, knob navigation, panorama sections.",
   "icon": "icon.svg",
   "settings": "settings.html",
+  "settingsHint": "theme and accent, start tiles (show, hide, size, order), weather and the music knob",
   "config": [
     {
       "type": "enum",
