@@ -27,13 +27,18 @@ The home screen is a panorama: a tile grid that scrolls horizontally, split into
 
 | Section | Content | Preset |
 |---|---|---|
-| start | pinned tiles | 1 |
-| apps | alphabetical list with accent letter jump tiles | 2 |
+| start | the tile grid | 1 |
+| notifications | the action center: every notification with its time and the phone's actions, clear all | |
+| apps | alphabetical list with outlined accent letter jump squares | 2 |
 | music | now playing, large, with transport controls | 3 |
+| settings | theme picker, brightness, paired phones, restart, edit / reset start | |
 
-Preset 4 is play / pause. A settings section (brightness, bluetooth, system) is planned, not built.
+Preset 4 is play / pause. The notifications and settings tiles open their sections.
 
-v1 ships the launcher only. A Metro overlay (flat toasts, volume, call, pairing; no blur) is v2.
+![on a car thing](screenshots/start.png)
+
+v1 ships the launcher only. A Metro overlay (flat toasts, volume, call, pairing; no blur) is later. Metro already
+turns off the system volume bar while it is on screen (`overlays.volume: false`) and draws its own flyout.
 
 ## Layout (px)
 
@@ -73,13 +78,14 @@ Headers and section names are lowercase.
 
 ## Color
 
-A theme is a background plus an accent, as on WP. Both are manifest `config` enums, so the user picks them in
-the companion app and the launcher reads them with `client.config`:
+A theme is a background plus an accent, as on WP. Both are manifest `config` fields, so the user picks them in
+the companion app and the launcher reads them with `client.config`; the device's settings page can override them
+(kept in `client.store` until the companion changes the same key):
 
 | Key | Choices | Default |
 |---|---|---|
-| `theme` | `dark`, `light` | `dark` |
-| `accent` | the 20 names below | `cyan` |
+| `theme` | `dark`, `light` (enum) | `dark` |
+| `accent` | the 20 names below (a pattern-checked string: the companion draws enums as one segmented row, which 20 overflow) | `cyan` |
 
 ![theme sheet](design/themes.png)
 
@@ -101,7 +107,8 @@ One accent for every app tile, as on WP, from the WP8 set (`design/themes.html` 
 | orange `#FA6800` | amber `#F0A30A` | yellow `#E3C800` | brown `#825A2C` |
 | olive `#6D8764` | steel `#647687` | mauve `#76608A` | sienna `#A0522D` |
 
-Only the now-playing tile breaks the rule, in Spotify green `#1DB954`.
+Only the now-playing tile breaks the rule: it takes the album art's dominant colour (saturation-weighted
+average, darkened until white text clears 4.5:1), and the accent when there is no art.
 
 ## Icons
 
@@ -110,28 +117,45 @@ Only the now-playing tile breaks the rule, in Spotify green `#1DB954`.
 - Brand marks: Simple Icons (CC0 data, trademark rules apply).
 - Not shippable: Segoe Fluent Icons, Segoe MDL2 Assets, the Windows logo.
 
-## Tiles (v1)
+## Tiles
 
-| Tile | Size | Live behaviour |
+| Tile | Sizes (default first) | Face and live behaviour |
 |---|---|---|
-| Clock | medium | time + day, flips to the date |
-| Now playing | wide | artwork + title/artist, cycles |
-| Notifications | wide | latest notification, count badge |
-| Installed apps | first 4 small, the rest medium | icon (or initial), label on medium |
+| Clock | medium, wide | time and day, flips to the date |
+| Now playing | wide, medium | wide: art plus title and artist, the art slides up over the tile; medium: art with the title |
+| Notifications | wide, medium, small | latest notification and count, cycles; small: bell with the count, flips to the count |
+| Weather (the weather app's tile) | the app's size | glyph and temperature; medium and wide add high/low, wide the condition |
+| Settings | small, medium | glyph; opens the settings section |
+| Installed apps | first 3 small, the rest medium; any size | icon, a white Metro glyph for built-in apps, or the initial |
+
+The default grid puts three apps and settings in the 2x2 block beside the clock. The user reshapes it with edit mode
+on the device or the tile list in the companion; both write the `layout` doc.
+
+### Edit mode
+
+Long press a tile (or settings > edit start). The other tiles sink to `scale(.9)` at half opacity; the selected one
+comes forward with arrows to move it. A 52 px app bar along the bottom has a button per size (sizes the tile cannot
+take are disabled) and done. Knob: turn to move, press to cycle the size, back or menu to finish.
 
 ## Input
 
 | Control | Arrives as | Action |
 |---|---|---|
-| Knob turn | `wheel`, `deltaX` | move focus tile by tile, column-major, auto-scroll; on music: volume up/down |
-| Knob press | unknown, verify on device | open focused tile; on music: play / pause |
-| Tap | pointer | open tile |
-| Back | `keydown` `Escape` | close app list / menu; no-op on start |
-| Presets 1-3 | `keydown` `1`..`3` | jump to section, snapping to its start |
+| Knob turn | `wheel`, `deltaX` (one step per event) | move focus, column-major, auto-scroll; on music: volume, or keeps navigating with `music_knob: scroll` |
+| Knob press | `keydown` `Enter` (unverified on hardware) | open the focused tile; on music: play / pause |
+| Tap | pointer | open; a drag pans the panorama and flings |
+| Long press | pointer held 600 ms | edit mode |
+| Back | `keydown` `Escape` | back to start; leaves edit mode |
+| Presets 1-3 | `keydown` `1`..`3` | jump to start, apps, music |
 | Preset 4 | `keydown` `4` | play / pause |
-| M | `keydown` `m` | reserved: system return-home gesture |
+| Hold a preset | no keyup within 500 ms | button guide flyout for 2.5 s (the press still acts) |
+| Menu (M) | `keydown` `m`, repeats ignored | start and music, back and forth; five presses is still the system return-home gesture |
 
-Focus: 3 px solid white inset outline (`box-shadow: inset 0 0 0 3px #fff`), no layout shift.
+Focus: a 3 px foreground ring drawn on a layer above the tile's contents, shown only while driving by knob or keys;
+a touch hides it.
+
+Volume: knob steps are 4%, the bar moves at once, and sends coalesce to one absolute level every 40 ms. The flyout is
+a 72 px chrome band from the top, 1.5 s.
 
 ## Motion
 
@@ -143,7 +167,9 @@ Transforms and opacity only. One element animates at a time where possible.
 | Launch app | turnstile out on visible tiles: `rotateY` 0 to -50deg, 250 ms, 40 ms stagger, then activate |
 | Return home | turnstile in: `rotateY` 80deg to 0, 350 ms, 50 ms stagger |
 | Live tile flip | `rotateX` 0 to 180deg, 850 ms cubic ease-out; one tile at a time, every 3 to 8 s |
-| Loading | WP flying dots: 5 squares 4x4, 200 ms stagger, 4.4 s cycle |
+| Now playing peek | art slides `translateY(100%)` to 0 over the tile, 850 ms cubic ease-out, as a live tile turn |
+| Album colour | the now playing tile eases its background over 600 ms |
+| Edit mode | none: transitions and live tiles stop while the grid re-packs |
 
 Dropped for the GPU: parallax and moving backgrounds, `backdrop-filter`, shadow animation, simultaneous flips.
 
@@ -153,18 +179,19 @@ Dropped for the GPU: parallax and moving backgrounds, `backdrop-filter`, shadow 
 |---|---|
 | Apps | `webapp.list`, `webapp.icon`, `webapp.activate`, `onWebappInstalled/Uninstalled` |
 | Clock | `time.onSnapshot`, fallback `Date` |
-| Now playing | `player.onSnapshot`, `asset.get` |
-| Badges | aggregate `notifications.onPosted/onRemoved` by `app.bundleId` |
-| Layout (order, sizes) | `client.store` |
-| Accent, background | manifest `config` enums `accent`, `theme` |
-| Knob on music | manifest `config` enum `music_knob`: `volume` (default) or `scroll` |
+| Now playing | `player.onSnapshot` / `onDelta` (empty fields keep their last value), `asset.get` with retries |
+| Notifications | `notifications.onPosted/onUpdated/onRemoved`, `invokePositive/invokeNegative`; cleared ids remembered |
+| Layout (order, sizes, hidden) | `layout` doc, shared with the companion; `tiles` doc lists every tile for it |
+| Accent, background | config `theme`, `accent`; device override in `client.store` `theme_override` |
+| Knob on music | config enum `music_knob`: `volume` (default) or `scroll` |
+| Weather | Open-Meteo via `net.fetch`; location from `geo`, else ipapi.co, else config `weather_location` |
+| Device settings | `hardware` (brightness), `bluetooth` (paired phones), `system` (version, restart) |
 
-`just dev-daemon` has no phone, so dev runs against a fake client with sample data.
+`just dev-daemon` has no phone, so dev runs against a fake client with sample data (`?mock`).
 
 ## Open questions (check on hardware)
 
-- What the knob press sends.
-- Chromium version: 3D transforms, `@property`, CSS `linear()`.
+- What the knob press sends; Metro treats `Enter` as the press.
 - Whether Back does anything beyond `Escape`.
 
 ## Sources
