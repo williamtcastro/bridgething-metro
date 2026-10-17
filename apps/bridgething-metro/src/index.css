@@ -137,7 +137,10 @@ img {
   color: #fff;
   overflow: hidden;
   text-align: left;
-  transition: transform 167ms var(--decel);
+  /* the now playing tile eases into each new album colour */
+  transition:
+    transform 167ms var(--decel),
+    background-color 600ms ease;
 }
 
 .strip.entering .tile {
@@ -153,10 +156,6 @@ img {
 .tile.focused,
 .app-row.focused .app-row-icon {
   box-shadow: inset 0 0 0 3px var(--fg);
-}
-
-.tile-music {
-  background: #1db954;
 }
 
 .tile-label {

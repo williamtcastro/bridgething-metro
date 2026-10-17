@@ -12,6 +12,7 @@ import { MusicFace } from '@/components/tiles/MusicFace';
 import { NotesFace } from '@/components/tiles/NotesFace';
 import { Tile } from '@/components/tiles/Tile';
 import { VolumeBar } from '@/components/VolumeBar';
+import { useArtColor } from '@/hooks/useArtColor';
 import { useDrag } from '@/hooks/useDrag';
 import { useInput } from '@/hooks/useInput';
 import { useLauncher } from '@/hooks/useLauncher';
@@ -36,6 +37,7 @@ export default function App() {
   const [section, setSection] = useState<Section>('start');
   const [leaving, setLeaving] = useState(false);
   const flipped = useLiveTiles(LIVE_TILES);
+  const artColor = useArtColor(launcher.nowPlaying?.artUrl ?? null);
   const now = useNow();
 
   const placed = useMemo(
@@ -204,7 +206,7 @@ export default function App() {
               h={t.h}
               focused={focus === i}
               label={labelOf(t)}
-              music={t.kind === 'music'}
+              background={t.kind === 'music' ? artColor : undefined}
               onPress={el => {
                 if (drag.moved) return;
                 // tiles that open a section jump without focusing themselves first: that focus would snap the strip

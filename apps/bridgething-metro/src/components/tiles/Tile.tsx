@@ -11,12 +11,14 @@ export function Tile(props: {
   h: number;
   focused: boolean;
   label?: string;
-  music?: boolean;
+  // replaces the accent, as the now playing tile does with its album colour
+  background?: string | null;
   onPress(el: HTMLElement): void;
   children: ReactNode;
 }) {
   const left = props.col * STEP;
   const style = {
+    ...(props.background ? { background: props.background } : {}),
     left,
     top: props.row * STEP,
     width: px(props.w),
@@ -28,7 +30,7 @@ export function Tile(props: {
     <button
       type="button"
       data-focus
-      className={`tile${props.focused ? ' focused' : ''}${props.music ? ' tile-music' : ''}`}
+      className={`tile${props.focused ? ' focused' : ''}`}
       style={style}
       onClick={e => props.onPress(e.currentTarget)}>
       {props.children}
