@@ -4,11 +4,16 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { daemonUrl } from '@/daemon';
 import { toNote } from '@/lib/notifications';
 import { applyDelta, keepKnown } from '@/lib/player';
+import { cachedLayout, cacheLayout, LAYOUT_DOC, parseLayout, TILES_DOC } from '@/lib/start-layout';
 import { ACCENTS, cachedTheme, DEFAULT_THEME, type Theme } from '@/lib/theme';
+import { tileCatalog } from '@/lib/tiles';
 import { clamp, requestId } from '@/lib/util';
-import type { AppEntry, Launcher, Note, Volume } from '@/types';
+import { EMPTY_LAYOUT, type AppEntry, type Launcher, type Note, type StartLayout, type Volume } from '@/types';
+import { cachedApps, cacheApps } from '@/lib/app-cache';
+import type { Weather } from '@/lib/weather';
 import { useDevice } from './useDevice';
 import { useMockLauncher } from './useMockLauncher';
+import { useWeather } from './useWeather';
 
 // `?mock` runs on sample data: `just dev-daemon` has no phone, so player, time and notifications stay empty there
 export function useLauncher(): Launcher {
@@ -39,7 +44,8 @@ function parseLocal(raw: string): Partial<Theme> {
 
 function useLive(enabled: boolean): Launcher {
   const client = useMemo(() => (enabled ? new BridgethingClient({ url: daemonUrl() }) : null), [enabled]);
-  const [apps, setApps] = useState<AppEntry[] | null>(null);
+  // the last list is cached so a return from an app lays out the whole grid on the first frame, not twice
+  const [apps, setApps] = useState<AppEntry[] | null>(() => cachedApps());
   const [player, setPlayer] = useState<PlayerState | null>(null);
   // the playing phone app; stands in when the track has no artist (non-music apps often send title only)
   const [source, setSource] = useState<string | null>(null);
@@ -57,7 +63,11 @@ function useLive(enabled: boolean): Launcher {
   const turning = useRef<{ level: number; at: number } | null>(null);
   const sendTimer = useRef(0);
   const [musicKnob, setMusicKnob] = useState<'volume' | 'scroll'>('volume');
+  const [layout, setLayout] = useState<StartLayout>(() => cachedLayout() ?? EMPTY_LAYOUT);
+  const [weatherUnits, setWeatherUnits] = useState<Weather['units']>('metric');
+  const [weatherLocation, setWeatherLocation] = useState<string | undefined>(undefined);
   const device = useDevice(client);
+  const weather = useWeather(client, weatherUnits, weatherLocation);
 
   useEffect(() => {
     if (!client) return;
@@ -81,7 +91,21 @@ function useLive(enabled: boolean): Launcher {
             return { id: info.id, name: info.name, iconUrl: url };
           }),
       );
-      if (!cancelled) setApps(loaded);
+      if (cancelled) return;
+      setApps(loaded);
+      cacheApps(loaded);
+      // the companion's tile list reads this; only rewritten when the set of tiles actually changes
+      const catalog = JSON.stringify(tileCatalog(loaded));
+      if (catalog !== published) {
+        published = catalog;
+        void client.doc.set({ key: TILES_DOC, value: catalog });
+      }
+    };
+    let published = '';
+    const takeLayout = (raw: string | null) => {
+      const next = parseLayout(raw);
+      cacheLayout(next);
+      setLayout(next);
     };
 
     const config: Record<string, string> = {};
@@ -91,6 +115,8 @@ function useLive(enabled: boolean): Launcher {
         accent: config.accent ?? DEFAULT_THEME.accent,
       });
       setMusicKnob(config.music_knob === 'scroll' ? 'scroll' : 'volume');
+      setWeatherUnits(config.weather_units === 'imperial' ? 'imperial' : 'metric');
+      setWeatherLocation(config.weather_location || undefined);
     };
 
     // the socket drops and reconnects on its own; pull everything again on each open so nothing stays stale
@@ -111,6 +137,7 @@ function useLive(enabled: boolean): Launcher {
         setSource(r.response.activeApp?.name ?? null);
       });
       void client.time.get().then(r => r.ok && setTime(r.response.time));
+      void client.doc.get({ key: LAYOUT_DOC }).then(r => r.ok && takeLayout(r.response.value));
     };
     refresh();
 
@@ -137,6 +164,8 @@ function useLive(enabled: boolean): Launcher {
         setPlayer(p => keepKnown(p, s.state));
         setSource(s.activeApp?.name ?? null);
       }),
+      // the companion's tile list edits the same doc
+      client.doc.onChanged(d => d.key === LAYOUT_DOC && takeLayout(d.value)),
       client.time.onSnapshot(s => setTime(s.time)),
       client.time.onChanged(s => setTime(s.time)),
       client.notifications.onPosted(n => setNotes(ns => [toNote(n), ...ns.filter(x => x.id !== n.id)])),
@@ -199,6 +228,13 @@ function useLive(enabled: boolean): Launcher {
   const playing = player?.playback.state === 'playing';
   return {
     device,
+    layout,
+    weather,
+    saveLayout(next) {
+      cacheLayout(next);
+      setLayout(next);
+      void client?.doc.set({ key: LAYOUT_DOC, value: JSON.stringify(next) });
+    },
     apps,
     nowPlaying: track?.title
       ? { title: track.title, artist: track.artist ?? track.albumArtist, album: track.album, source, artUrl, playing }

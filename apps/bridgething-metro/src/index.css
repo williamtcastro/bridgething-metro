@@ -857,3 +857,59 @@ img {
     transition: none;
   }
 }
+
+/* edit mode, as on WP: every other tile sinks back and dims, the picked one comes forward with its controls */
+.strip.editing .tile {
+  transform: scale(0.9);
+  opacity: 0.5;
+  transition:
+    transform 250ms var(--decel),
+    opacity 250ms var(--decel);
+}
+
+.strip.editing .tile.selected {
+  transform: scale(1.04);
+  opacity: 1;
+  overflow: visible;
+  z-index: 2;
+}
+
+.tile-controls {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.tile-control {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--fg);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tc-prev {
+  left: -14px;
+  top: calc(50% - 18px);
+}
+
+.tc-next {
+  right: -14px;
+  top: calc(50% - 18px);
+}
+
+.tc-size {
+  right: -14px;
+  bottom: -14px;
+}
+
+.tc-done {
+  right: -14px;
+  top: -14px;
+  background: var(--accent);
+  color: #fff;
+}

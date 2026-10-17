@@ -1,6 +1,8 @@
 import type { TimeInfo } from '@bridgething/client';
 
+import type { Size } from '@/lib/layout';
 import type { Theme } from '@/lib/theme';
+import type { Weather } from '@/lib/weather';
 
 export type AppEntry = { id: string; name: string; iconUrl: string | null };
 export type NowPlaying = { title: string; artist: string | null; album: string | null; source: string | null; artUrl: string | null; playing: boolean };
@@ -16,6 +18,12 @@ export type Note = {
 };
 // level is 0.0 to 1.0
 export type Volume = { level: number; muted: boolean };
+
+// the start grid as the user shaped it, shared with the companion through the `layout` doc. order and sizes come
+// from edit mode on the device, hidden from the companion settings page. keys are tile keys (`clock`, app ids...);
+// a key missing from order keeps its default slot after the ordered ones.
+export type StartLayout = { order: string[]; sizes: Record<string, Size>; hidden: string[] };
+export const EMPTY_LAYOUT: StartLayout = { order: [], sizes: {}, hidden: [] };
 
 // level is 0.0 to 1.0
 export type Brightness = { mode: 'auto' | 'manual'; level: number };
@@ -33,6 +41,10 @@ export type DeviceSettings = {
 
 export type Launcher = {
   device: DeviceSettings;
+  layout: StartLayout;
+  saveLayout(layout: StartLayout): void;
+  // null until the first forecast arrives (or a cached one is loaded)
+  weather: Weather | null;
   apps: AppEntry[] | null;
   nowPlaying: NowPlaying | null;
   notes: Note[];

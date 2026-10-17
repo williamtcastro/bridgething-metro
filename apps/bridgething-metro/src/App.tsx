@@ -11,6 +11,8 @@ import { ClockFace } from '@/components/tiles/ClockFace';
 import { MusicFace } from '@/components/tiles/MusicFace';
 import { NotesFace } from '@/components/tiles/NotesFace';
 import { Tile } from '@/components/tiles/Tile';
+import { TileControls } from '@/components/tiles/TileControls';
+import { WeatherFace } from '@/components/tiles/WeatherFace';
 import { VolumeBar } from '@/components/VolumeBar';
 import { useArtColor } from '@/hooks/useArtColor';
 import { useDrag } from '@/hooks/useDrag';
@@ -23,7 +25,8 @@ import { pack } from '@/lib/layout';
 import { noteStops } from '@/lib/notifications';
 import { applyTheme } from '@/lib/theme';
 import { formatTime } from '@/lib/time';
-import { gridWidth, labelOf, startTiles } from '@/lib/tiles';
+import { appGlyph } from '@/lib/app-glyphs';
+import { allowedSizes, gridWidth, labelOf, startTiles } from '@/lib/tiles';
 import { clamp, wait } from '@/lib/util';
 
 export default function App() {
@@ -40,10 +43,33 @@ export default function App() {
   const artColor = useArtColor(launcher.nowPlaying?.artUrl ?? null);
   const now = useNow();
 
-  const placed = useMemo(
-    () => pack(startTiles(launcher.apps ?? [])).sort((a, b) => a.col - b.col || a.row - b.row),
-    [launcher.apps],
-  );
+  const specs = useMemo(() => startTiles(launcher.apps ?? [], launcher.layout), [launcher.apps, launcher.layout]);
+  const placed = useMemo(() => pack(specs).sort((a, b) => a.col - b.col || a.row - b.row), [specs]);
+
+  // edit mode, entered by a long press or from settings: the knob walks the selected tile through the order and a
+  // press cycles its size; back, M or tapping it again finishes. both write the layout doc the companion shares.
+  const [editKey, setEditKey] = useState<string | null>(null);
+  const moveTile = (d: number) => {
+    const keys = specs.map(t => t.key);
+    const i = editKey ? keys.indexOf(editKey) : -1;
+    const j = clamp(i + Math.sign(d), 0, keys.length - 1);
+    if (i < 0 || i === j) return;
+    [keys[i], keys[j]] = [keys[j], keys[i]];
+    launcher.saveLayout({ ...launcher.layout, order: keys });
+  };
+  const resizeTile = () => {
+    const t = specs.find(s => s.key === editKey);
+    if (!t) return;
+    const sizes = allowedSizes(t);
+    const size = sizes[(sizes.indexOf(t.size) + 1) % sizes.length];
+    launcher.saveLayout({ ...launcher.layout, sizes: { ...launcher.layout.sizes, [t.key]: size } });
+  };
+  // the selected tile keeps the focus as it moves, so the strip scrolls along with it
+  useEffect(() => {
+    if (!editKey) return;
+    const i = placed.findIndex(t => t.key === editKey);
+    if (i >= 0) setFocus(i);
+  }, [editKey, placed]);
 
   const items = () => Array.from(strip.current?.querySelectorAll<HTMLElement>('[data-focus]') ?? []);
   const maxOffset = () => Math.max(0, (strip.current?.scrollWidth ?? 0) - SCREEN + 2 * MARGIN);
@@ -116,20 +142,29 @@ export default function App() {
 
   useInput({
     // with music_knob=volume the knob is volume on music, like the stock car thing; back or a preset leaves
-    step: d =>
-      section === 'music' && launcher.musicKnob === 'volume'
-        ? launcher.stepVolume(d)
-        : setFocus(f => clamp(f + d, 0, items().length - 1)),
-    press: () => items()[focus]?.click(),
-    back: () => section !== 'start' && focusSection('start'),
+    step: d => {
+      if (editKey) return moveTile(d);
+      if (section === 'music' && launcher.musicKnob === 'volume') return launcher.stepVolume(d);
+      setFocus(f => clamp(f + d, 0, items().length - 1));
+    },
+    press: () => (editKey ? resizeTile() : items()[focus]?.click()),
+    back: () => {
+      if (editKey) return setEditKey(null);
+      if (section !== 'start') focusSection('start');
+    },
     // M flips between start and music: from start it jumps to the player, from anywhere else back to the clock tile
     home: () => {
+      if (editKey) return setEditKey(null);
       if (section === 'start') return focusSection('music');
       setSection('start');
       setFocus(0);
       setOffset(0);
     },
-    preset: n => (n === 4 ? launcher.togglePlay() : focusSection(PRESETS[n])),
+    preset: n => {
+      setEditKey(null);
+      if (n === 4) launcher.togglePlay();
+      else focusSection(PRESETS[n]);
+    },
     hold: n => setGuide({ n, at: Date.now() }),
   });
 
@@ -192,7 +227,7 @@ export default function App() {
 
       <div
         ref={strip}
-        className={`strip${leaving ? ' leaving' : ''}${entering && loaded ? ' entering' : ''}`}
+        className={`strip${leaving ? ' leaving' : ''}${entering && loaded ? ' entering' : ''}${editKey ? ' editing' : ''}`}
         style={{ transform: `translateX(${-offset}px)` }}
         {...drag.handlers}>
         <section data-section="start" className="start" style={{ width: gridWidth(placed) }}>
@@ -207,8 +242,21 @@ export default function App() {
               focused={focus === i}
               label={labelOf(t)}
               background={t.kind === 'music' ? artColor : undefined}
+              selected={editKey === t.key}
+              onLongPress={() => !drag.moved && setEditKey(t.key)}
+              controls={
+                editKey === t.key && (
+                  <TileControls
+                    onMove={moveTile}
+                    onResize={allowedSizes(t).length > 1 ? resizeTile : undefined}
+                    onDone={() => setEditKey(null)}
+                  />
+                )
+              }
               onPress={el => {
                 if (drag.moved) return;
+                // in edit mode a tap picks the tile to edit, and tapping the picked one again finishes
+                if (editKey) return setEditKey(editKey === t.key ? null : t.key);
                 // tiles that open a section jump without focusing themselves first: that focus would snap the strip
                 // back to start, which wins whenever the target section has nothing focusable
                 if (t.kind === 'music') return focusSection('music');
@@ -220,7 +268,12 @@ export default function App() {
               {t.kind === 'clock' && <ClockFace now={now} time={launcher.time} flipped={flipped === 'clock'} />}
               {t.kind === 'music' && <MusicFace launcher={launcher} peek={flipped === 'music'} />}
               {t.kind === 'notes' && <NotesFace notes={launcher.notes} flipped={flipped === 'notes'} />}
-              {t.kind === 'app' && <AppFace app={t.app} size={t.size} />}
+              {t.kind === 'app' &&
+                (appGlyph(t.app.name) === 'weather' && launcher.weather ? (
+                  <WeatherFace weather={launcher.weather} size={t.size} />
+                ) : (
+                  <AppFace app={t.app} size={t.size} />
+                ))}
               {t.kind === 'settings' && (
                 <span className="app-glyph">
                   <Icon name="settings" size={44} />
@@ -264,6 +317,7 @@ export default function App() {
           onPickTheme={launcher.pickTheme}
           focusedIndex={focus - placed.length - stops - appCount - musicStops}
           onFocus={focusOf}
+          onEditStart={() => setEditKey(placed[0]?.key ?? null)}
         />
       </div>
 

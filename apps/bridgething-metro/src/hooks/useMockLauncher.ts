@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { DEFAULT_THEME, type Theme } from '@/lib/theme';
-import type { Brightness, Launcher, Note } from '@/types';
+import { EMPTY_LAYOUT, type Brightness, type Launcher, type Note, type StartLayout } from '@/types';
 
 // stand-in album art so the artwork path is exercised without a phone
 function mockArt(from: string, to: string) {
@@ -26,6 +26,7 @@ export function useMockLauncher(enabled: boolean): Launcher {
     ];
   });
   const [brightness, setBrightness] = useState<Brightness>({ mode: 'auto', level: 0.6 });
+  const [layout, setLayout] = useState<StartLayout>(EMPTY_LAYOUT);
   const q = useMemo(() => new URLSearchParams(location.search), []);
   const [theme, setTheme] = useState<Theme>(() => ({
     theme: q.get('theme') === 'light' ? 'light' : 'dark',
@@ -38,6 +39,9 @@ export function useMockLauncher(enabled: boolean): Launcher {
   ];
   const { art, ...track } = tracks[(((trackNo % tracks.length) + tracks.length) % tracks.length)];
   return {
+    layout,
+    weather: { temp: 18, high: 24, low: 15, code: 2, day: true, units: 'metric', at: 0 },
+    saveLayout: setLayout,
     device: {
       brightness,
       phones: [
