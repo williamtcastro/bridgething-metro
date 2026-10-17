@@ -1,0 +1,848 @@
+/* metro tokens and motion: docs/DESIGN.md */
+
+@font-face {
+  font-family: "Selawik";
+  font-weight: 300;
+  font-display: block;
+  src: url("./fonts/selawkl.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Selawik";
+  font-weight: 350;
+  font-display: block;
+  src: url("./fonts/selawksl.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Selawik";
+  font-weight: 400;
+  font-display: block;
+  src: url("./fonts/selawk.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Selawik";
+  font-weight: 600;
+  font-display: block;
+  src: url("./fonts/selawksb.woff2") format("woff2");
+}
+
+:root {
+  --accent: #1ba1e2;
+  --bg: #000;
+  --fg: #fff;
+  --sub: rgba(255, 255, 255, 0.6);
+  --dot: rgba(255, 255, 255, 0.35);
+  --decel: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --exit: cubic-bezier(0.4925, 0.01, 0.7675, -0.01);
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #fff;
+  --fg: #000;
+  --sub: rgba(0, 0, 0, 0.6);
+  --dot: rgba(0, 0, 0, 0.3);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  width: 800px;
+  height: 480px;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Selawik", "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+  outline: none;
+}
+
+img {
+  display: block;
+}
+
+.icon {
+  display: inline-flex;
+}
+
+.screen {
+  position: relative;
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+
+.status {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 32px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  z-index: 1;
+}
+
+.status-title {
+  flex: 1;
+  font-weight: 300;
+  color: var(--sub);
+}
+
+/* the panorama: every section side by side, moved with one transform */
+.strip {
+  position: absolute;
+  left: 24px;
+  top: 44px;
+  height: 412px;
+  display: flex;
+  gap: 48px;
+  transition: transform 350ms var(--decel);
+  will-change: transform;
+}
+
+.start {
+  position: relative;
+  flex: none;
+  height: 412px;
+}
+
+/* tiles */
+
+.tile {
+  position: absolute;
+  background: var(--accent);
+  color: #fff;
+  overflow: hidden;
+  text-align: left;
+  transition: transform 167ms var(--decel);
+}
+
+.strip.entering .tile {
+  transform-origin: var(--origin);
+  animation: turnstile-in 350ms var(--decel) both;
+  animation-delay: calc(var(--i) * 50ms);
+}
+
+.tile:active {
+  transform: scale(0.975);
+}
+
+.tile.focused,
+.app-row.focused .app-row-icon {
+  box-shadow: inset 0 0 0 3px var(--fg);
+}
+
+.tile-music {
+  background: #1db954;
+}
+
+.tile-label {
+  position: absolute;
+  left: 12px;
+  bottom: 8px;
+  font-size: 22px;
+  white-space: nowrap;
+}
+
+.tile-count {
+  position: absolute;
+  right: 12px;
+  bottom: 6px;
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.app-glyph,
+.note-glyph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-letter {
+  font-weight: 300;
+  line-height: 1;
+}
+
+.app-glyph img {
+  object-fit: contain;
+}
+
+.clock-time {
+  position: absolute;
+  left: 12px;
+  top: 40px;
+  font-size: 56px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.clock-day {
+  position: absolute;
+  left: 14px;
+  top: 104px;
+  font-size: 22px;
+  font-weight: 300;
+}
+
+.music-art {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0c0c0c;
+  color: #777;
+}
+
+/* live motion: the art rides up from below to cover the tile, with the track title along its foot; the WP
+   HubTile drop timing (850 ms, cubic ease-out). translate only, so it stays on the compositor */
+.music-peek {
+  position: absolute;
+  inset: 0;
+  transform: translateY(100%);
+  transition: transform 850ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.music-peek.on {
+  transform: translateY(0);
+}
+
+.music-peek img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.music-peek-label {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  font-size: 22px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* no artwork: the playing app's white mark straight on the tile, not a grey note in a dark box */
+.music-art-empty {
+  background: none;
+  color: #fff;
+}
+
+.music-art img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+
+.music-meta {
+  position: absolute;
+  left: 212px;
+  top: 14px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.music-title {
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1.15;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.music-artist {
+  font-size: 20px;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-label {
+  left: 212px;
+}
+
+.note-app {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  font-size: 26px;
+  font-weight: 300;
+}
+
+.note-body {
+  position: absolute;
+  left: 12px;
+  top: 50px;
+  right: 60px;
+  font-size: 20px;
+  line-height: 1.35;
+  white-space: pre-line;
+  overflow: hidden;
+  max-height: 81px;
+}
+
+/* live tiles flip on X, one at a time */
+
+.flip {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 850ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.flip.flipped {
+  transform: perspective(600px) rotateX(180deg);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+.face.back {
+  transform: rotateX(180deg);
+}
+
+/* apps: alphabetical list flowing in columns, accent letter squares as jump points */
+
+.apps {
+  flex: none;
+  height: 412px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(6, 58px);
+  grid-auto-columns: 280px;
+  row-gap: 12px;
+  column-gap: 24px;
+  align-content: start;
+}
+
+/* outlined so a jump letter never reads as an app */
+.jump {
+  width: 58px;
+  height: 58px;
+  border: 3px solid var(--accent);
+  color: var(--accent);
+  font-size: 32px;
+  font-weight: 300;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 4px 8px;
+}
+
+.app-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  transition: transform 167ms var(--decel);
+}
+
+.app-row:active {
+  transform: scale(0.975);
+}
+
+.app-row-icon {
+  flex: none;
+  width: 58px;
+  height: 58px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-row-icon img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.app-row-name {
+  font-size: 26px;
+  font-weight: 300;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* notifications: the WP action center laid sideways, two cards per column */
+
+.notes {
+  flex: none;
+  height: 412px;
+  display: flex;
+  gap: 24px;
+}
+
+.notes-empty {
+  /* a full page wide, so the empty page reads as a page and not a gap between start and apps */
+  width: 704px;
+  font-size: 26px;
+  font-weight: 300;
+  color: var(--sub);
+}
+
+.notes-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 194px);
+  grid-auto-columns: 374px;
+  gap: 24px;
+}
+
+.note-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.note-card-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+}
+
+.note-card-app {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.note-card-time {
+  color: var(--sub);
+}
+
+.note-card-title {
+  margin-top: 4px;
+  font-size: 24px;
+  font-weight: 300;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.note-card-body {
+  font-size: 20px;
+  color: var(--sub);
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.note-card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+}
+
+/* the WP button: a 3px rectangle that fills with the foreground when pressed */
+.metro-button {
+  height: 48px;
+  padding: 0 18px;
+  border: 3px solid var(--fg);
+  font-size: 20px;
+  transition: transform 167ms var(--decel);
+}
+
+.metro-button:active {
+  transform: scale(0.975);
+  background: var(--fg);
+  color: var(--bg);
+}
+
+:root:not([data-input="touch"]) .metro-button.focused {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.notes-clear {
+  flex: none;
+  align-self: flex-start;
+}
+
+/* settings: WP settings groups, one column each */
+
+.settings {
+  flex: none;
+  height: 412px;
+  display: flex;
+  gap: 28px;
+  padding-right: 72px;
+}
+
+.settings-col {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-head {
+  font-size: 32px;
+  font-weight: 300;
+  margin-bottom: 12px;
+}
+
+.setting-title {
+  font-size: 24px;
+}
+
+.setting-sub {
+  font-size: 18px;
+  color: var(--sub);
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  padding: 6px 0;
+  transition: transform 167ms var(--decel);
+}
+
+.setting-row:active {
+  transform: scale(0.975);
+}
+
+:root:not([data-input="touch"]) .setting-row.focused .setting-title {
+  color: var(--accent);
+}
+
+.settings-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.settings-stack {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* the accent picker: the 20 WP accents five to a row; the chosen one carries a ring in the foreground colour */
+.settings-theme {
+  width: 236px;
+}
+
+.swatch-name {
+  margin-top: 14px;
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(5, 40px);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.swatch {
+  width: 40px;
+  height: 40px;
+  transition: transform 167ms var(--decel);
+}
+
+.swatch:active {
+  transform: scale(0.95);
+}
+
+.swatch.on {
+  box-shadow: inset 0 0 0 3px var(--fg);
+}
+
+:root:not([data-input="touch"]) .swatch.focused {
+  outline: 3px solid var(--fg);
+  outline-offset: 2px;
+}
+
+/* a switched-on toggle reads as accent text inside the white rectangle */
+.metro-button.on {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* music */
+
+/* the physical knob overhangs the right edge of the panel, so keep the controls clear of it */
+.music {
+  flex: none;
+  width: 752px;
+  padding-right: 72px;
+  height: 412px;
+  display: flex;
+  gap: 24px;
+}
+
+.music-big-art {
+  flex: none;
+  width: 300px;
+  height: 300px;
+  background: #0c0c0c;
+  color: #777;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.music-big-art img {
+  width: 300px;
+  height: 300px;
+  object-fit: cover;
+}
+
+/* as tall as the art, so the controls sit level with its bottom edge */
+.music-big-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 300px;
+}
+
+.music-big-title {
+  font-size: 42px;
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.music-big-artist {
+  font-size: 22px;
+  color: var(--sub);
+  margin-top: 8px;
+}
+
+.music-big-album {
+  font-size: 20px;
+  color: var(--sub);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-controls {
+  display: flex;
+  gap: 24px;
+  margin-top: auto;
+}
+
+/* WP slider: flat track, accent fill, no thumb */
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 20px;
+}
+
+
+/* the WP volume flyout: a chrome band across the top that slides down over the status strip */
+.flyout {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 72px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  background: #1f1f1f;
+  color: #fff;
+  z-index: 2;
+  animation: flyout-in 250ms var(--decel) both;
+}
+
+:root[data-theme="light"] .flyout {
+  background: #ddd;
+  color: #000;
+}
+
+/* the button guide: same band, taller, one column per hardware button with the held one in accent */
+.flyout.guide {
+  height: 112px;
+  gap: 40px;
+}
+
+.guide-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.guide-key {
+  font-size: 42px;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.guide-label {
+  font-size: 18px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.guide-item.on .guide-key {
+  color: var(--accent);
+}
+
+@keyframes flyout-in {
+  from {
+    transform: translateY(-72px);
+  }
+}
+
+.volume-label {
+  width: 72px;
+  color: var(--sub);
+}
+
+.volume-track {
+  width: 220px;
+  height: 12px;
+  background: var(--dot);
+}
+
+.volume-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 120ms var(--decel);
+}
+
+.volume-value {
+  width: 40px;
+  font-weight: 300;
+}
+
+/* the WP app bar button: a 3px ring around the glyph */
+.round {
+  width: 72px;
+  height: 72px;
+  border: 3px solid var(--fg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 167ms var(--decel);
+}
+
+.round:active {
+  transform: scale(0.975);
+  background: var(--fg);
+  color: var(--bg);
+}
+
+:root:not([data-input="touch"]) .round.focused {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+:root[data-input="touch"] .tile.focused,
+:root[data-input="touch"] .app-row.focused .app-row-icon {
+  box-shadow: none;
+}
+
+.dots {
+  position: absolute;
+  left: 24px;
+  bottom: 9px;
+  display: flex;
+  gap: 6px;
+}
+
+.dots i {
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: var(--dot);
+}
+
+.dots i.on {
+  background: var(--fg);
+}
+
+.crash {
+  height: 480px;
+  padding: 44px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 20px;
+  color: var(--sub);
+}
+
+.crash-title {
+  font-size: 42px;
+  font-weight: 300;
+  color: var(--fg);
+}
+
+/* turnstile: everything hinges on one axis left of the screen */
+
+@keyframes turnstile-in {
+  from {
+    opacity: 0;
+    transform: perspective(600px) rotateY(80deg);
+  }
+  10% {
+    opacity: 1;
+  }
+}
+
+.strip.leaving .tile,
+.strip.leaving .app-row {
+  animation: none;
+  opacity: 0;
+  transform: perspective(600px) rotateY(-50deg);
+  transition:
+    transform 250ms var(--exit) var(--d, 0ms),
+    opacity 10ms linear calc(var(--d, 0ms) + 240ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .flip,
+  .strip {
+    animation: none;
+    transition: none;
+  }
+}
