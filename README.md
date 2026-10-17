@@ -19,6 +19,9 @@ and lowercase headers. The full spec is in [docs/DESIGN.md](docs/DESIGN.md).
 - **Music**: large artwork, title, artist, album and the playing app, with previous, play/pause and next.
 - **Settings**: theme (dark or light, 20 WP accents), brightness, paired phones and restart, on the device.
 - **Themes**: the 20 WP8 accents on a dark or light background, set on the device or in the companion app.
+- **Your own grid**: move and resize tiles in WP edit mode on the device; show, hide, size and order them from the
+  companion app.
+- **Weather tile**: current conditions and high/low on the weather app's tile, refreshed every 15 minutes.
 - **Volume flyout** and a **button guide** in the WP chrome-band style.
 
 ## Controls
@@ -34,6 +37,10 @@ and lowercase headers. The full spec is in [docs/DESIGN.md](docs/DESIGN.md).
 | Hold 1-4 | show what every button does |
 | M | start and music, back and forth |
 | M x5, or hold M | bridgething's own return-home gesture |
+| Long press a tile | edit mode (also settings > edit start) |
+
+In edit mode the knob moves the selected tile, a press cycles its size, and back, M or tapping it again finishes.
+The tile's buttons do the same by touch; tap another tile to edit that one instead.
 
 ## Settings
 
@@ -45,8 +52,12 @@ offers:
 | Background | dark, light | dark |
 | Accent colour | lime, green, emerald, teal, cyan, cobalt, indigo, violet, pink, magenta, crimson, red, orange, amber, yellow, brown, olive, steel, mauve, sienna | cyan |
 | Knob on the music screen | volume, scroll | volume |
+| Weather units | metric, imperial | metric |
+| Weather location | `lat,lon`, or blank for the phone's location | blank |
+| Tiles | per tile: shown or hidden, size, position; reset layout | the default grid |
 
-A theme picked on the device is kept in Metro's device storage and wins until the same setting is changed in
+The tile list is shared with the device's edit mode through the `layout` doc, so changes on either side show up
+on the other. A theme picked on the device is kept in Metro's device storage and wins until the same setting is changed in
 the companion app. Metro turns off the system volume bar while it is on screen and draws its own flyout.
 
 ## Install
