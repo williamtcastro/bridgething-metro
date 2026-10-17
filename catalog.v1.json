@@ -1,7 +1,7 @@
 {
   "$schema": "https://apps.bridgething.com/schemas/catalog/v1.json",
   "schema": "catalog.v1",
-  "updated_at": "2026-10-17T02:34:07.388Z",
+  "updated_at": "2026-10-17T02:43:09.843Z",
   "repo": {
     "name": "Metro",
     "description": "Metro, a Windows Phone style home screen for bridgething.",
@@ -15,9 +15,38 @@
       "description": "A Windows Phone style Start screen: live tiles, knob navigation, panorama sections.",
       "author": "William de Castro",
       "icon": "https://williamtcastro.github.io/bridgething-metro/icons/01a14748-8c1a-771b-844d-4f10909667c9.svg",
+      "screenshots": [
+        "https://williamtcastro.github.io/bridgething-metro/screenshots/01a14748-8c1a-771b-844d-4f10909667c9/01.png",
+        "https://williamtcastro.github.io/bridgething-metro/screenshots/01a14748-8c1a-771b-844d-4f10909667c9/02.png",
+        "https://williamtcastro.github.io/bridgething-metro/screenshots/01a14748-8c1a-771b-844d-4f10909667c9/03.png",
+        "https://williamtcastro.github.io/bridgething-metro/screenshots/01a14748-8c1a-771b-844d-4f10909667c9/04.png",
+        "https://williamtcastro.github.io/bridgething-metro/screenshots/01a14748-8c1a-771b-844d-4f10909667c9/05.png",
+        "https://williamtcastro.github.io/bridgething-metro/screenshots/01a14748-8c1a-771b-844d-4f10909667c9/06.png"
+      ],
       "homepage": "https://github.com/williamtcastro/bridgething-metro",
       "source": "https://github.com/williamtcastro/bridgething-metro",
       "versions": [
+        {
+          "version": "1.0.1",
+          "released_at": "2026-10-17T02:43:09.821Z",
+          "download": {
+            "url": "https://williamtcastro.github.io/bridgething-metro/r/01a14748-8c1a-771b-844d-4f10909667c9/1.0.1.zip",
+            "size": 546844,
+            "sha256": "c671451e2d100083d3d485e0da02cea19e1153082b3c8811b9a4f299eb815950"
+          },
+          "settings": {
+            "url": "https://williamtcastro.github.io/bridgething-metro/s/01a14748-8c1a-771b-844d-4f10909667c9/1.0.1.html",
+            "size": 93102,
+            "sha256": "7c15c27c995dd6b505813f9eec4cbc7421511419a9515727f522a287bdabe293"
+          },
+          "permissions": [
+            "net.fetch",
+            "geo"
+          ],
+          "role": "launcher",
+          "min_libbridgething_version": "0.12.1",
+          "changelog": "Store screenshots and catalog icon."
+        },
         {
           "version": "1.0.0",
           "released_at": "2026-10-17T02:29:50.678Z",
