@@ -3,6 +3,7 @@
   "name": "Metro",
   "version": "0.1.0",
   "description": "A Windows Phone style Start screen: live tiles, knob navigation, panorama sections.",
+  "icon": "icon.svg",
   "settings": "settings.html",
   "config": [
     {
