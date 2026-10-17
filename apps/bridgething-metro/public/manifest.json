@@ -31,12 +31,28 @@
         "choices": ["volume", "scroll"],
         "default": "volume"
       }
+    },
+    {
+      "type": "enum",
+      "data": {
+        "key": "weather_units",
+        "label": "Weather units",
+        "choices": ["metric", "imperial"],
+        "default": "metric"
+      }
+    },
+    {
+      "type": "string",
+      "data": {
+        "key": "weather_location",
+        "label": "Weather location as lat,lon (blank uses the phone's location)"
+      }
     }
   ],
   "overlays": {
     "volume": false
   },
-  "permissions": [],
+  "permissions": ["net.fetch", "geo"],
   "art": {
     "heroPx": 248,
     "thumbPx": 96

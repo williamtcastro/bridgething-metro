@@ -6,6 +6,7 @@ import { applyTheme, cachedTheme } from '@/lib/theme';
 
 import App from './App';
 import './index.css';
+import '@/styles/weather.css';
 
 // paint the last theme before react's first frame; coming back from an app otherwise flashes the default
 const last = cachedTheme();

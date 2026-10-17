@@ -1,0 +1,44 @@
+.weather-face {
+  position: absolute;
+  inset: 0;
+  color: #fff;
+  display: flex;
+}
+.weather-small {
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 10px;
+}
+.weather-small .weather-temp {
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 1;
+}
+/* the bottom 40px belong to the tile label */
+.weather-medium,
+.weather-wide {
+  padding: 12px 16px 40px;
+  justify-content: space-between;
+}
+.weather-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.weather-medium .weather-temp,
+.weather-wide .weather-temp {
+  font-size: 56px;
+  font-weight: 300;
+  line-height: 1;
+}
+.weather-range {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.2;
+}
+.weather-text {
+  align-self: flex-end;
+  font-size: 24px;
+  font-weight: 300;
+  text-align: right;
+}
