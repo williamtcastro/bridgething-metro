@@ -2,7 +2,7 @@ import { BridgethingClient, type PlayerState, type TimeInfo } from '@bridgething
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { daemonUrl } from '@/daemon';
-import { toNote } from '@/lib/notifications';
+import { dismiss, dismissedIds, toNote } from '@/lib/notifications';
 import { applyDelta, keepKnown } from '@/lib/player';
 import { cachedLayout, cacheLayout, LAYOUT_DOC, parseLayout, TILES_DOC } from '@/lib/start-layout';
 import { ACCENTS, cachedTheme, DEFAULT_THEME, type Theme } from '@/lib/theme';
@@ -168,7 +168,10 @@ function useLive(enabled: boolean): Launcher {
       client.doc.onChanged(d => d.key === LAYOUT_DOC && takeLayout(d.value)),
       client.time.onSnapshot(s => setTime(s.time)),
       client.time.onChanged(s => setTime(s.time)),
-      client.notifications.onPosted(n => setNotes(ns => [toNote(n), ...ns.filter(x => x.id !== n.id)])),
+      client.notifications.onPosted(n => {
+        if (dismissedIds().has(n.id)) return;
+        setNotes(ns => [toNote(n), ...ns.filter(x => x.id !== n.id)]);
+      }),
       client.notifications.onUpdated(n => setNotes(ns => ns.map(x => (x.id === n.id ? toNote(n) : x)))),
       client.notifications.onRemoved(r => setNotes(ns => ns.filter(x => x.id !== r.id))),
       client.audio.onVolumeChanged(v => {
@@ -271,11 +274,14 @@ function useLive(enabled: boolean): Launcher {
     act(id, action) {
       if (!client) return;
       void (action === 'positive' ? client.notifications.invokePositive({ id }) : client.notifications.invokeNegative({ id }));
-      if (action === 'negative') setNotes(ns => ns.filter(n => n.id !== id));
+      if (action !== 'negative') return;
+      dismiss([id]);
+      setNotes(ns => ns.filter(n => n.id !== id));
     },
     clearNotes() {
       if (!client) return;
       for (const n of notes) if (n.negative) void client.notifications.invokeNegative({ id: n.id });
+      dismiss(notes.map(n => n.id));
       setNotes([]);
     },
     async launch(id) {

@@ -3,6 +3,30 @@ import type { Notification } from '@bridgething/client';
 import { appName } from '@/lib/app-names';
 import type { Note } from '@/types';
 
+const DISMISSED_KEY = 'metro-dismissed';
+const DISMISSED_MAX = 200;
+
+// notifications the user cleared here. the daemon replays what it still holds on every connect, and a clear only
+// reaches the phone when it offered a negative action, so without this a reload brings cleared ones back.
+// newest last, capped, in page storage (it only has to outlive reloads, not the device).
+export function dismissedIds(): Set<string> {
+  try {
+    const v = JSON.parse(localStorage.getItem(DISMISSED_KEY) ?? '[]');
+    return new Set(Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string') : []);
+  } catch {
+    return new Set();
+  }
+}
+
+export function dismiss(ids: string[]) {
+  const all = [...dismissedIds(), ...ids];
+  try {
+    localStorage.setItem(DISMISSED_KEY, JSON.stringify([...new Set(all)].slice(-DISMISSED_MAX)));
+  } catch {
+    // storage unavailable: the clear still applies until the next reload
+  }
+}
+
 export function toNote(n: Notification): Note {
   return {
     id: n.id,
