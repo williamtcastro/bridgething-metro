@@ -21,6 +21,26 @@ export function parseCoords(s: string | null | undefined): Coords | null {
   return { lat: m[0], lon: m[1] };
 }
 
+// GET a url through the phone and parse the JSON body; the bytes arrive as a plain number array
+async function getJson(client: BridgethingClient, url: string): Promise<any> {
+  const res = await client.net.fetch({
+    request: { url, method: 'GET', headers: [], body: null, timeoutMs: 12_000, redirect: 'follow' },
+  });
+  if (!res.ok) throw new Error(`fetch ${new URL(url).host}: ${JSON.stringify(res.error)}`);
+  const reply = res.response as NetFetchReply;
+  if (reply.response.status >= 400) throw new Error(`${new URL(url).host} returned ${reply.response.status}`);
+  return JSON.parse(new TextDecoder().decode(new Uint8Array(reply.response.body as unknown as number[])));
+}
+
+// city-level coordinates from the phone's public ip, for when the phone shares no location (the daemon answers
+// geo with `unavailable`); weather needs no more precision than that
+export async function ipCoords(client: BridgethingClient): Promise<Coords> {
+  const json = await getJson(client, 'https://ipapi.co/json/');
+  const coords = parseCoords(`${json.latitude},${json.longitude}`);
+  if (!coords) throw new Error('ip location had no coordinates');
+  return coords;
+}
+
 export async function fetchWeather(
   client: BridgethingClient,
   coords: Coords,
@@ -35,15 +55,7 @@ export async function fetchWeather(
     temperature_unit: units === 'imperial' ? 'fahrenheit' : 'celsius',
     forecast_days: '1',
   });
-  const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
-  const res = await client.net.fetch({
-    request: { url, method: 'GET', headers: [], body: null, timeoutMs: 12_000, redirect: 'follow' },
-  });
-  if (!res.ok) throw new Error(res.kind === 'domain' ? 'no network' : 'network request failed');
-  const reply = res.response as NetFetchReply;
-  if (reply.response.status >= 400) throw new Error(`weather api returned ${reply.response.status}`);
-  // the bytes arrive as a plain number array
-  const json = JSON.parse(new TextDecoder().decode(new Uint8Array(reply.response.body as unknown as number[])));
+  const json = await getJson(client, `https://api.open-meteo.com/v1/forecast?${params.toString()}`);
   return {
     temp: Math.round(json.current.temperature_2m),
     high: Math.round(json.daily.temperature_2m_max[0]),
