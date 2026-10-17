@@ -1,0 +1,46 @@
+{
+  "$schema": "https://apps.bridgething.com/schemas/catalog/v1.json",
+  "schema": "catalog.v1",
+  "updated_at": "2026-10-17T02:26:07.564Z",
+  "repo": {
+    "name": "Metro",
+    "description": "Metro (Windows Phone style) home screen and overlay for bridgething.",
+    "homepage": "https://github.com/williamtcastro/bridgething-metro",
+    "icon": null
+  },
+  "apps": [
+    {
+      "id": "01a14748-8c1a-771b-844d-4f10909667c9",
+      "name": "Metro",
+      "description": "A Windows Phone style Start screen: live tiles, knob navigation, panorama sections.",
+      "author": "William de Castro",
+      "icon": "https://williamtcastro.github.io/bridgething-metro/icons/01a14748-8c1a-771b-844d-4f10909667c9.svg",
+      "homepage": "https://github.com/williamtcastro/bridgething-metro",
+      "source": "https://github.com/williamtcastro/bridgething-metro",
+      "versions": [
+        {
+          "version": "0.1.0",
+          "released_at": "2026-10-17T02:26:07.561Z",
+          "download": {
+            "url": "https://williamtcastro.github.io/bridgething-metro/r/01a14748-8c1a-771b-844d-4f10909667c9/0.1.0.zip",
+            "size": 546838,
+            "sha256": "6956e327b5d9095e166ecc9b676755be9d4376cfca11957200fcce47ae1081dd"
+          },
+          "settings": {
+            "url": "https://williamtcastro.github.io/bridgething-metro/s/01a14748-8c1a-771b-844d-4f10909667c9/0.1.0.html",
+            "size": 93102,
+            "sha256": "7c15c27c995dd6b505813f9eec4cbc7421511419a9515727f522a287bdabe293"
+          },
+          "permissions": [
+            "net.fetch",
+            "geo"
+          ],
+          "role": "launcher",
+          "min_libbridgething_version": "0.12.1",
+          "changelog": "First release."
+        }
+      ]
+    }
+  ],
+  "recommended_sources": []
+}
