@@ -39,7 +39,10 @@ export function useInput(on: {
       else if (e.key === 'Escape') latest.current.back();
       // the M button. the daemon only watches it (read-only) for its 5-press / hold return-home gesture, so the page
       // still gets every press; on the launcher a single one goes to start, which the gesture would do anyway
-      else if (e.key === 'm' || e.key === 'M') latest.current.home();
+      // a held button auto-repeats keydown, which toggled start and music over and over; only the first press counts
+      else if (e.key === 'm' || e.key === 'M') {
+        if (!e.repeat) latest.current.home();
+      }
       else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') latest.current.step(1);
       else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') latest.current.step(-1);
       else if (e.key >= '1' && e.key <= '4') {
