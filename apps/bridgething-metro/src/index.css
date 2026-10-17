@@ -922,17 +922,7 @@ img {
   top: calc(50% - 18px);
 }
 
-.tc-size {
-  right: -14px;
-  bottom: -14px;
-}
 
-.tc-done {
-  right: -14px;
-  top: -14px;
-  background: var(--accent);
-  color: #fff;
-}
 
 /* the small notifications tile: count tucked against the bell, then alone and large on the flip side */
 .note-small-count {
@@ -948,4 +938,55 @@ img {
   font-size: 52px;
   font-weight: 300;
   line-height: 1;
+}
+
+/* edit mode's app bar: the chrome band along the bottom with one button per size */
+.edit-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* slim, so it only overlaps the bottom gap and a sliver of the bottom row */
+  height: 52px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1f1f1f;
+  color: #fff;
+  z-index: 3;
+}
+
+:root[data-theme="light"] .edit-bar {
+  background: #ddd;
+  color: #000;
+}
+
+.edit-bar-label {
+  font-size: 20px;
+  opacity: 0.7;
+  margin-right: 4px;
+}
+
+.edit-bar .metro-button {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 18px;
+  border-color: currentColor;
+}
+
+.edit-bar .metro-button:disabled {
+  opacity: 0.25;
+  border-color: transparent;
+  cursor: default;
+}
+
+.edit-bar .metro-button.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.edit-bar-done {
+  margin-left: auto;
 }

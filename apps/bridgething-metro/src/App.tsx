@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { AppList } from '@/components/AppList';
 import { ButtonGuide } from '@/components/ButtonGuide';
+import { EditBar } from '@/components/EditBar';
 import { Icon } from '@/components/Icon';
 import { MusicSection } from '@/components/MusicSection';
 import { NotificationList } from '@/components/NotificationList';
@@ -21,7 +22,7 @@ import { useLauncher } from '@/hooks/useLauncher';
 import { useLiveTiles } from '@/hooks/useLiveTiles';
 import { useNow } from '@/hooks/useNow';
 import { HINGE, LIVE_TILES, MARGIN, PRESETS, SCREEN, SECTIONS, type Section } from '@/lib/constants';
-import { pack } from '@/lib/layout';
+import { pack, type Size } from '@/lib/layout';
 import { noteStops } from '@/lib/notifications';
 import { applyTheme } from '@/lib/theme';
 import { formatTime } from '@/lib/time';
@@ -59,13 +60,16 @@ export default function App() {
     [keys[i], keys[j]] = [keys[j], keys[i]];
     launcher.saveLayout({ ...launcher.layout, order: keys });
   };
-  const resizeTile = () => {
+  // a size picked on the edit bar, or the next allowed one when the knob is pressed
+  const resizeTile = (pick?: Size) => {
     const t = specs.find(s => s.key === editKey);
     if (!t) return;
     const sizes = allowedSizes(t);
-    const size = sizes[(sizes.indexOf(t.size) + 1) % sizes.length];
+    const size = pick ?? sizes[(sizes.indexOf(t.size) + 1) % sizes.length];
+    if (!sizes.includes(size)) return;
     launcher.saveLayout({ ...launcher.layout, sizes: { ...launcher.layout.sizes, [t.key]: size } });
   };
+  const editing = specs.find(s => s.key === editKey);
   // the selected tile keeps the focus as it moves, so the strip scrolls along with it
   useEffect(() => {
     if (!editKey) return;
@@ -221,6 +225,15 @@ export default function App() {
 
       {guide && <ButtonGuide held={guide.n} />}
 
+      {editing && (
+        <EditBar
+          size={editing.size}
+          allowed={allowedSizes(editing)}
+          onPick={resizeTile}
+          onDone={() => setEditKey(null)}
+        />
+      )}
+
       {!guide && flyout && launcher.volume && (
         <div className="flyout" role="status">
           <VolumeBar volume={launcher.volume} />
@@ -248,11 +261,7 @@ export default function App() {
               onLongPress={() => !drag.moved && setEditKey(t.key)}
               controls={
                 editKey === t.key && (
-                  <TileControls
-                    onMove={moveTile}
-                    onResize={allowedSizes(t).length > 1 ? resizeTile : undefined}
-                    onDone={() => setEditKey(null)}
-                  />
+                  <TileControls onMove={moveTile} />
                 )
               }
               onPress={el => {

@@ -2,8 +2,6 @@ import alert from '@fluentui/svg-icons/icons/alert_24_regular.svg?raw';
 import arrowLeft from '@fluentui/svg-icons/icons/arrow_left_24_regular.svg?raw';
 import arrowRight from '@fluentui/svg-icons/icons/arrow_right_24_regular.svg?raw';
 import bluetooth from '@fluentui/svg-icons/icons/bluetooth_24_regular.svg?raw';
-import checkmark from '@fluentui/svg-icons/icons/checkmark_24_regular.svg?raw';
-import resize from '@fluentui/svg-icons/icons/resize_24_regular.svg?raw';
 import calendar from '@fluentui/svg-icons/icons/calendar_ltr_24_regular.svg?raw';
 import cloudy from '@fluentui/svg-icons/icons/weather_cloudy_24_regular.svg?raw';
 import desktop from '@fluentui/svg-icons/icons/desktop_24_regular.svg?raw';
@@ -34,8 +32,6 @@ const ICONS = {
   arrowRight,
   bluetooth,
   calendar,
-  checkmark,
-  resize,
   cloudy,
   desktop,
   drizzle,

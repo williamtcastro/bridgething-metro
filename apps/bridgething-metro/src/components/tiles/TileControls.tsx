@@ -2,15 +2,14 @@ import type { MouseEvent, ReactNode } from 'react';
 
 import { Icon, type IconName } from '@/components/Icon';
 
-// the edit-mode buttons drawn on the selected tile. they sit inside the tile's own <button>, so they are spans
-// with a button role, and each stops its click so the tile underneath does not also react.
-export function TileControls(props: { onMove(d: number): void; onResize?(): void; onDone(): void }) {
+// the move buttons drawn on the selected tile; size and done live on the edit bar at the bottom. they sit inside
+// the tile's own <button>, so they are spans with a button role, and each stops its click so the tile underneath
+// does not also react.
+export function TileControls(props: { onMove(d: number): void }) {
   return (
     <span className="tile-controls">
       <Control className="tc-prev" label="move earlier" icon="arrowLeft" run={() => props.onMove(-1)} />
       <Control className="tc-next" label="move later" icon="arrowRight" run={() => props.onMove(1)} />
-      {props.onResize && <Control className="tc-size" label="resize" icon="resize" run={props.onResize} />}
-      <Control className="tc-done" label="done" icon="checkmark" run={props.onDone} />
     </span>
   );
 }
