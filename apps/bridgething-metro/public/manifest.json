@@ -1,7 +1,7 @@
 {
   "id": "01a14748-8c1a-771b-844d-4f10909667c9",
   "name": "Metro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Windows Phone style Start screen: live tiles, knob navigation, panorama sections.",
   "icon": "icon.svg",
   "settings": "settings.html",

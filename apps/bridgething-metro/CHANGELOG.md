@@ -1,5 +1,9 @@
 # bridgething-metro
 
+## 1.0.1
+
+Store screenshots and catalog icon.
+
 ## 1.0.0
 
 First release: a Windows Phone style Start screen for the Car Thing.
