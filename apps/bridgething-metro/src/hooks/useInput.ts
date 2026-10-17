@@ -22,13 +22,17 @@ export function useInput(on: {
     mode('knob');
     const touch = () => mode('touch');
     let acc = 0;
+    // one knob detent is one wheel event, but its delta is large enough to count as several steps, so an event moves
+    // at most one; only small trackpad-style deltas accumulate across events
     const wheel = (e: WheelEvent) => {
       mode('knob');
-      acc += Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      while (Math.abs(acc) >= WHEEL_STEP) {
-        latest.current.step(Math.sign(acc));
-        acc -= Math.sign(acc) * WHEEL_STEP;
-      }
+      const d = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (d === 0) return;
+      if (Math.sign(d) !== Math.sign(acc)) acc = 0;
+      acc += d;
+      if (Math.abs(acc) < WHEEL_STEP) return;
+      latest.current.step(Math.sign(acc));
+      acc = 0;
     };
     const key = (e: KeyboardEvent) => {
       if (e.key === 'Enter') latest.current.press();
