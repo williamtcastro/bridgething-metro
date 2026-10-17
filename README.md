@@ -2,7 +2,7 @@
 
 A Windows Phone style Start screen for the Spotify Car Thing running [bridgething](https://bridgething.com).
 
-![Metro start screen](docs/design/mock-orange.png)
+![Metro on a Car Thing](docs/screenshots/start.png)
 
 The Car Thing's 800x480 panel is the WP7/WP8 phone screen turned sideways, so Metro keeps the Windows Phone grid,
 type and motion almost pixel for pixel: flat accent tiles, live tiles, a sideways panorama, turnstile transitions
