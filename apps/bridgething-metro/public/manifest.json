@@ -15,14 +15,11 @@
       }
     },
     {
-      "type": "enum",
+      "type": "string",
       "data": {
         "key": "accent",
-        "label": "Accent color",
-        "choices": [
-          "lime", "green", "emerald", "teal", "cyan", "cobalt", "indigo", "violet", "pink", "magenta",
-          "crimson", "red", "orange", "amber", "yellow", "brown", "olive", "steel", "mauve", "sienna"
-        ],
+        "label": "Accent color (pick from swatches in Metro settings)",
+        "pattern": "^(lime|green|emerald|teal|cyan|cobalt|indigo|violet|pink|magenta|crimson|red|orange|amber|yellow|brown|olive|steel|mauve|sienna)$",
         "default": "cyan"
       }
     },
