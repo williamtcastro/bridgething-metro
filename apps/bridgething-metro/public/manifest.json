@@ -1,0 +1,48 @@
+{
+  "id": "01a14748-8c1a-771b-844d-4f10909667c9",
+  "name": "Metro",
+  "version": "0.1.0",
+  "description": "A Windows Phone style Start screen: live tiles, knob navigation, panorama sections.",
+  "settings": "settings.html",
+  "config": [
+    {
+      "type": "enum",
+      "data": {
+        "key": "theme",
+        "label": "Background",
+        "choices": ["dark", "light"],
+        "default": "dark"
+      }
+    },
+    {
+      "type": "enum",
+      "data": {
+        "key": "accent",
+        "label": "Accent color",
+        "choices": [
+          "lime", "green", "emerald", "teal", "cyan", "cobalt", "indigo", "violet", "pink", "magenta",
+          "crimson", "red", "orange", "amber", "yellow", "brown", "olive", "steel", "mauve", "sienna"
+        ],
+        "default": "cyan"
+      }
+    },
+    {
+      "type": "enum",
+      "data": {
+        "key": "music_knob",
+        "label": "Knob on the music screen",
+        "choices": ["volume", "scroll"],
+        "default": "volume"
+      }
+    }
+  ],
+  "overlays": {
+    "volume": false
+  },
+  "permissions": [],
+  "art": {
+    "heroPx": 248,
+    "thumbPx": 96
+  },
+  "role": "launcher"
+}
