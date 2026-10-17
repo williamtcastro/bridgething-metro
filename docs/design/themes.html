@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Metro themes</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=block" rel="stylesheet">
+<style>
+  /* the 20 WP8 accents and the two backgrounds, as the companion offers them (manifest config: accent, theme) */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 800px; height: 480px; overflow: hidden; background: #000; }
+  body { font-family: 'Selawik', 'Open Sans', sans-serif; color: #fff; padding: 12px 24px; }
+  h1 { margin: 0 0 4px; font-size: 42px; font-weight: 300; line-height: 1.1; }
+  h2 { margin: 0 0 8px; font-size: 20px; font-weight: 400; color: rgba(255,255,255,.6); }
+  .row { display: flex; gap: 24px; }
+  .bgs { display: flex; flex-direction: column; gap: 12px; width: 150px; }
+  .bg { height: 150px; position: relative; border: 1px solid rgba(255,255,255,.3); }
+  .bg i { position: absolute; width: 28px; height: 28px; background: #fa6800; }
+  .bg span { position: absolute; left: 8px; bottom: 6px; font-size: 20px; }
+  .accents { display: grid; grid-template-columns: repeat(5, 106px); gap: 12px; }
+  .sw { height: 77px; position: relative; }
+  .sw span { position: absolute; left: 8px; bottom: 4px; font-size: 18px; color: #fff; }
+  .sw small { position: absolute; left: 8px; top: 4px; font-size: 13px; color: rgba(255,255,255,.85); }
+</style>
+</head>
+<body>
+  <h1>theme</h1>
+  <div class="row">
+    <div>
+      <h2>background</h2>
+      <div class="bgs">
+        <div class="bg" style="background:#000">
+          <i style="left:12px;top:12px"></i><i style="left:44px;top:12px"></i><i style="left:12px;top:44px;width:60px"></i>
+          <span>dark</span>
+        </div>
+        <div class="bg" style="background:#fff;color:#000">
+          <i style="left:12px;top:12px"></i><i style="left:44px;top:12px"></i><i style="left:12px;top:44px;width:60px"></i>
+          <span>light</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h2>accent color</h2>
+      <div class="accents" id="accents"></div>
+    </div>
+  </div>
+  <script>
+    const ACCENTS = [
+      ['lime', '#a4c400'], ['green', '#60a917'], ['emerald', '#008a00'], ['teal', '#00aba9'], ['cyan', '#1ba1e2'],
+      ['cobalt', '#0050ef'], ['indigo', '#6a00ff'], ['violet', '#aa00ff'], ['pink', '#f472d0'], ['magenta', '#d80073'],
+      ['crimson', '#a20025'], ['red', '#e51400'], ['orange', '#fa6800'], ['amber', '#f0a30a'], ['yellow', '#e3c800'],
+      ['brown', '#825a2c'], ['olive', '#6d8764'], ['steel', '#647687'], ['mauve', '#76608a'], ['sienna', '#a0522d'],
+    ];
+    document.getElementById('accents').innerHTML = ACCENTS.map(
+      ([name, hex]) => `<div class="sw" style="background:${hex}"><small>${hex}</small><span>${name}</span></div>`,
+    ).join('');
+  </script>
+</body>
+</html>

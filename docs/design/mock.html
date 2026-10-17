@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Metro start mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=block" rel="stylesheet">
+<style>
+  /* static 800x480 mock of the start section; see ../DESIGN.md for the tokens */
+  :root {
+    --accent: #1ba1e2;
+    --bg: #000;
+    --fg: #fff;
+    --sub: rgba(255,255,255,.6);
+    --dot: rgba(255,255,255,.35);
+    --unit: 94px;
+    --gap: 12px;
+    --step: 106px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 800px; height: 480px; overflow: hidden; background: var(--bg); }
+  body { font-family: 'Selawik', 'Open Sans', sans-serif; color: var(--fg); position: relative; }
+
+  .status { position: absolute; inset: 0 0 auto 0; height: 32px; display: flex; align-items: center; padding: 0 24px; gap: 14px; font-size: 18px; }
+  .status .title { font-weight: 300; flex: 1; text-transform: lowercase; color: var(--sub); }
+  .status svg { width: 18px; height: 18px; }
+
+  .grid { position: absolute; left: 24px; top: 44px; }
+  .tile { position: absolute; background: var(--accent); color: #fff; overflow: hidden; }
+  .tile .label { position: absolute; left: 12px; bottom: 8px; font-size: 22px; font-weight: 400; white-space: nowrap; }
+  .tile .glyph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .tile .glyph svg { width: 44px; height: 44px; }
+  .tile.medium .glyph svg { width: 72px; height: 72px; }
+  .tile .badge { position: absolute; right: 12px; bottom: 6px; font-size: 32px; font-weight: 300; line-height: 1; }
+  .focus { box-shadow: inset 0 0 0 3px var(--fg); }
+
+  .s { width: var(--unit); height: var(--unit); }
+  .m { width: 200px; height: 200px; }
+  .w { width: 412px; height: 200px; }
+
+  .clock .time { position: absolute; left: 12px; top: 40px; font-size: 56px; font-weight: 300; line-height: 1; }
+  .clock .day { position: absolute; left: 14px; top: 104px; font-size: 22px; font-weight: 300; }
+
+  .np { background: #1db954; }
+  .np .art { position: absolute; left: 0; top: 0; width: 200px; height: 200px; background: #0c0c0c; display: flex; align-items: center; justify-content: center; }
+  .np .art svg { width: 72px; height: 72px; opacity: .5; }
+  .np .meta { position: absolute; left: 212px; top: 16px; right: 12px; }
+  .np .track { font-size: 28px; font-weight: 300; line-height: 1.15; }
+  .np .artist { font-size: 20px; font-weight: 400; opacity: .8; margin-top: 6px; }
+
+  .msg .from { position: absolute; left: 12px; top: 12px; font-size: 26px; font-weight: 300; }
+  .msg .body { position: absolute; left: 12px; top: 50px; right: 60px; font-size: 20px; line-height: 1.35; opacity: .9; }
+
+  .dots { position: absolute; left: 24px; bottom: 9px; display: flex; gap: 6px; }
+  .dots i { width: 6px; height: 6px; background: var(--dot); display: block; }
+  .dots i.on { background: var(--fg); }
+</style>
+</head>
+<body>
+  <div class="status">
+    <span class="title">start</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="7" width="18" height="10"/><path d="M22 10v4"/><rect x="4" y="9" width="10" height="6" fill="currentColor" stroke="none"/></svg>
+    <span>16:56</span>
+  </div>
+
+  <div class="grid">
+    <!-- col 0-1 -->
+    <div class="tile m clock" style="left:0;top:0">
+      <div class="time">16:56</div>
+      <div class="day">friday 6</div>
+      <div class="label">clock</div>
+    </div>
+    <div class="tile w msg" style="left:424px;top:0">
+      <div class="from">Messages</div>
+      <div class="body">[latest notification title]<br>[first line of the message body]</div>
+      <div class="label">notifications</div>
+      <div class="badge">3</div>
+    </div>
+
+    <!-- col 2-3 small -->
+    <div class="tile s" style="left:212px;top:0">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></div>
+    </div>
+    <div class="tile s" style="left:318px;top:0">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg></div>
+    </div>
+    <div class="tile s" style="left:212px;top:106px">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" aria-hidden="true"><rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>
+    </div>
+    <div class="tile s" style="left:318px;top:106px">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" aria-hidden="true"><circle cx="9" cy="10" r="3.5"/><path d="M9 3v1.5M3.5 10H2M5 6L4 5M14 6l1-1"/><path d="M8 20h10a3.5 3.5 0 0 0 0-7 5 5 0 0 0-9.6 1.4A2.8 2.8 0 0 0 8 20z"/></svg></div>
+    </div>
+
+    <!-- now playing, focused by the knob -->
+    <div class="tile w np focus" style="left:0;top:212px">
+      <div class="art"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.2" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></div>
+      <div class="meta">
+        <div class="track">[track title]</div>
+        <div class="artist">[artist]</div>
+      </div>
+      <div class="label" style="left:212px">now playing</div>
+    </div>
+
+    <!-- row 2-3, col 4+ -->
+    <div class="tile m medium" style="left:424px;top:212px">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.2" aria-hidden="true"><path d="M3 11l9-8 9 8M5 9.5V21h14V9.5"/></svg></div>
+      <div class="label">home assistant</div>
+    </div>
+    <div class="tile s" style="left:636px;top:212px">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" aria-hidden="true"><rect x="3" y="4" width="18" height="13"/><path d="M8 21h8M12 17v4"/></svg></div>
+    </div>
+    <div class="tile s" style="left:636px;top:318px">
+      <div class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" aria-hidden="true"><rect x="9" y="3" width="6" height="11"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div>
+    </div>
+    <!-- peek of the next column -->
+    <div class="tile m" style="left:742px;top:212px"></div>
+  </div>
+
+  <div class="dots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
+  <script>
+    // mock.html?accent=orange&theme=light
+    const ACCENTS = {
+      lime: '#a4c400', green: '#60a917', emerald: '#008a00', teal: '#00aba9', cyan: '#1ba1e2',
+      cobalt: '#0050ef', indigo: '#6a00ff', violet: '#aa00ff', pink: '#f472d0', magenta: '#d80073',
+      crimson: '#a20025', red: '#e51400', orange: '#fa6800', amber: '#f0a30a', yellow: '#e3c800',
+      brown: '#825a2c', olive: '#6d8764', steel: '#647687', mauve: '#76608a', sienna: '#a0522d',
+    };
+    const q = new URLSearchParams(location.search);
+    const root = document.documentElement.style;
+    if (ACCENTS[q.get('accent')]) root.setProperty('--accent', ACCENTS[q.get('accent')]);
+    if (q.get('theme') === 'light') {
+      root.setProperty('--bg', '#fff');
+      root.setProperty('--fg', '#000');
+      root.setProperty('--sub', 'rgba(0,0,0,.6)');
+      root.setProperty('--dot', 'rgba(0,0,0,.3)');
+    }
+  </script>
+</body>
+</html>
