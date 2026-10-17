@@ -4,7 +4,7 @@ const BUTTONS = [
   { key: '2', label: 'apps' },
   { key: '3', label: 'music' },
   { key: '4', label: 'play / pause' },
-  { key: 'M', label: 'start / music' },
+  { key: 'menu', label: 'start / music' },
 ];
 
 export function ButtonGuide({ held }: { held: number }) {

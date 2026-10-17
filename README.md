@@ -35,11 +35,11 @@ and lowercase headers. The full spec is in [docs/DESIGN.md](docs/DESIGN.md).
 | 1 / 2 / 3 | start / apps / music |
 | 4 | play / pause |
 | Hold 1-4 | show what every button does |
-| M | start and music, back and forth |
-| M x5, or hold M | bridgething's own return-home gesture |
+| Menu (M) | start and music, back and forth |
+| Menu x5, or hold Menu | bridgething's own return-home gesture |
 | Long press a tile | edit mode (also settings > edit start) |
 
-In edit mode the knob moves the selected tile, a press cycles its size, and back, M or tapping it again finishes.
+In edit mode the knob moves the selected tile, a press cycles its size, and back, menu or tapping it again finishes.
 The tile's buttons do the same by touch; tap another tile to edit that one instead.
 
 ## Settings
