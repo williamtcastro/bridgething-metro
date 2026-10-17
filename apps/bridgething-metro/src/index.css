@@ -872,6 +872,11 @@ img {
   opacity: 0.5;
 }
 
+/* the selected tile stops clipping so its controls can overhang; the parked art peek below it must not show */
+.strip.editing .music-peek {
+  display: none;
+}
+
 .strip.editing .tile.selected {
   transform: scale(1.04);
   opacity: 1;
