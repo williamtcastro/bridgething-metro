@@ -5,7 +5,7 @@ import { daemonUrl } from '@/daemon';
 import { toNote } from '@/lib/notifications';
 import { applyDelta, keepKnown } from '@/lib/player';
 import { ACCENTS, cachedTheme, DEFAULT_THEME, type Theme } from '@/lib/theme';
-import { requestId } from '@/lib/util';
+import { clamp, requestId } from '@/lib/util';
 import type { AppEntry, Launcher, Note, Volume } from '@/types';
 import { useDevice } from './useDevice';
 import { useMockLauncher } from './useMockLauncher';
@@ -19,6 +19,10 @@ export function useLauncher(): Launcher {
 }
 
 const THEME_KEY = 'theme_override';
+const VOLUME_STEP = 0.04;
+const VOLUME_SEND_MS = 40;
+// how long after the last knob step a daemon echo is treated as our own and dropped
+const VOLUME_SETTLE_MS = 400;
 
 // only keys the picker writes, and only values the launcher knows, survive a stored override
 function parseLocal(raw: string): Partial<Theme> {
@@ -48,6 +52,10 @@ function useLive(enabled: boolean): Launcher {
   // and wins until the companion changes that same setting again
   const [local, setLocal] = useState<Partial<Theme>>({});
   const [volume, setVolume] = useState<Volume | null>(null);
+  // knob volume is optimistic: the bar follows the hand at once, sends coalesce to one absolute level per
+  // VOLUME_SEND_MS, and the daemon's echoes are ignored while a turn is in flight so the bar never snaps back
+  const turning = useRef<{ level: number; at: number } | null>(null);
+  const sendTimer = useRef(0);
   const [musicKnob, setMusicKnob] = useState<'volume' | 'scroll'>('volume');
   const device = useDevice(client);
 
@@ -134,7 +142,12 @@ function useLive(enabled: boolean): Launcher {
       client.notifications.onPosted(n => setNotes(ns => [toNote(n), ...ns.filter(x => x.id !== n.id)])),
       client.notifications.onUpdated(n => setNotes(ns => ns.map(x => (x.id === n.id ? toNote(n) : x)))),
       client.notifications.onRemoved(r => setNotes(ns => ns.filter(x => x.id !== r.id))),
-      client.audio.onVolumeChanged(v => setVolume({ level: v.level, muted: v.muted })),
+      client.audio.onVolumeChanged(v => {
+        const t = turning.current;
+        if (t && Date.now() - t.at < VOLUME_SETTLE_MS) return;
+        turning.current = null;
+        setVolume({ level: v.level, muted: v.muted });
+      }),
     ];
 
     return () => {
@@ -204,7 +217,20 @@ function useLive(enabled: boolean): Launcher {
     musicKnob,
     stepVolume(direction) {
       if (!client) return;
-      void (direction > 0 ? client.audio.volumeUp() : client.audio.volumeDown());
+      const base = turning.current?.level ?? volume?.level;
+      // there is no volume getter, so until the first change is reported fall back to the daemon's own step
+      if (base === undefined) {
+        void (direction > 0 ? client.audio.volumeUp() : client.audio.volumeDown());
+        return;
+      }
+      const level = clamp(Math.round((base + Math.sign(direction) * VOLUME_STEP) * 100) / 100, 0, 1);
+      turning.current = { level, at: Date.now() };
+      setVolume({ level, muted: false });
+      if (sendTimer.current) return;
+      sendTimer.current = window.setTimeout(() => {
+        sendTimer.current = 0;
+        if (turning.current) void client.audio.setVolume({ level: turning.current.level });
+      }, VOLUME_SEND_MS);
     },
     act(id, action) {
       if (!client) return;
